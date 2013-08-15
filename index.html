@@ -9,8 +9,24 @@
   <meta name="author" content="y2bd">
 
   
-  <meta name="description" content="Let us see where it brings us. Right now the site theme is pretty ehh, and I have to configure my actual domain to point to this.
-">
+  <meta name="description" content="Let&rsquo;s see how syntax-highlighting works with this. Here is some Lua code for a Love2D-based game: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +86,143 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/08/14/testing-code-highlighting/">Testing Code Highlighting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-08-14T19:19:00-07:00" pubdate data-updated="true">Aug 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Let&rsquo;s see how syntax-highlighting works with this.</p>
+
+<p>Here is some Lua code for a Love2D-based game:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="c1">-- mapper.lua</span>
+</span><span class='line'><span class="c1">-- loads the maps and draws them to the screen</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- requires</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">tileLoader</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">libs.advtileloader.Loader&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- constants</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">TOTAL_LEVELS</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- local vars</span>
+</span><span class='line'><span class="kd">local</span> <span class="k">function</span> <span class="nf">buildMapName</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;</span><span class="s">level_&quot;</span> <span class="o">..</span> <span class="n">index</span> <span class="o">..</span> <span class="s2">&quot;</span><span class="s">.tmx&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- module</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">Mapper</span> <span class="o">=</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">currentLevelIndex</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">maps</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nc">Mapper</span><span class="p">.</span><span class="nf">draw</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">love</span><span class="p">.</span><span class="n">graphics</span><span class="p">.</span><span class="n">setColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span> <span class="c1">-- apparently we need to do this to prevent tint</span>
+</span><span class='line'>  <span class="n">Mapper</span><span class="p">.</span><span class="n">maps</span><span class="p">[</span><span class="n">Mapper</span><span class="p">.</span><span class="n">currentLevelIndex</span><span class="p">]:</span><span class="n">draw</span><span class="p">()</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nc">Mapper</span><span class="p">.</span><span class="nf">getCurrentMap</span><span class="p">()</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">maps</span><span class="p">[</span><span class="n">currentLevelIndex</span><span class="p">]</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- init and return</span>
+</span><span class='line'><span class="kd">local</span> <span class="k">function</span> <span class="nf">init</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">tileLoader</span><span class="p">.</span><span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">maps/&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">TOTAL_LEVELS</span> <span class="k">do</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">map</span> <span class="o">=</span> <span class="n">tileLoader</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">buildMapName</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">map</span><span class="p">:</span><span class="n">setDrawRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">love</span><span class="p">.</span><span class="n">graphics</span><span class="p">.</span><span class="n">getWidth</span><span class="p">(),</span> <span class="n">love</span><span class="p">.</span><span class="n">graphics</span><span class="p">.</span><span class="n">getHeight</span><span class="p">())</span>
+</span><span class='line'>    <span class="n">map</span><span class="p">.</span><span class="n">drawObjects</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Mapper</span><span class="p">.</span><span class="n">maps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">map</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">Mapper</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="n">init</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/08/14/this-is-a-beginning/">This Is a Beginning</a></h1>
     
     
@@ -114,10 +267,43 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/08/14/testing-code-highlighting/">Testing Code Highlighting</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/08/14/this-is-a-beginning/">This Is a Beginning</a>
       </li>
     
   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/y2bd">@y2bd</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'y2bd',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
 

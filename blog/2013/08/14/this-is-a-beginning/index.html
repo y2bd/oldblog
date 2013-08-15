@@ -121,7 +121,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning/" data-via="" data-counturl="http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning/" data-via="y2bd" data-counturl="http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning/" >Tweet</a>
   
   
   
@@ -130,6 +130,8 @@
     
     <p class="meta">
       
+      
+        <a class="basic-alignment right" href="/blog/2013/08/14/testing-code-highlighting/" title="Next Post: Testing Code Highlighting">Testing Code Highlighting &raquo;</a>
       
     </p>
   </footer>
@@ -144,10 +146,43 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/08/14/testing-code-highlighting/">Testing Code Highlighting</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/08/14/this-is-a-beginning/">This Is a Beginning</a>
       </li>
     
   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/y2bd">@y2bd</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'y2bd',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
 

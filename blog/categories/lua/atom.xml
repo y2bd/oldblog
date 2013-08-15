@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: lua | this has yet to be defined]]></title>
+  <link href="http://y2bd.github.io/blog/categories/lua/atom.xml" rel="self"/>
+  <link href="http://y2bd.github.io/"/>
+  <updated>2013-08-14T22:19:38-07:00</updated>
+  <id>http://y2bd.github.io/</id>
+  <author>
+    <name><![CDATA[y2bd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Testing Code Highlighting]]></title>
+    <link href="http://y2bd.github.io/blog/2013/08/14/testing-code-highlighting/"/>
+    <updated>2013-08-14T19:19:00-07:00</updated>
+    <id>http://y2bd.github.io/blog/2013/08/14/testing-code-highlighting</id>
+    <content type="html"><![CDATA[<p>Let&rsquo;s see how syntax-highlighting works with this.</p>
+
+<p>Here is some Lua code for a Love2D-based game:</p>
+
+<p>``` lua
+&mdash; mapper.lua
+&mdash; loads the maps and draws them to the screen</p>
+
+<p>&mdash; requires
+local tileLoader = require(&ldquo;libs.advtileloader.Loader&rdquo;)</p>
+
+<p>&mdash; constants
+local TOTAL_LEVELS = 1</p>
+
+<p>&mdash; local vars
+local function buildMapName(index)
+  return &ldquo;level_&rdquo; .. index .. &ldquo;.tmx&rdquo;
+end</p>
+
+<p>&mdash; module
+local Mapper =
+{
+  currentLevelIndex = 1,
+  maps = {}
+}</p>
+
+<p>function Mapper.draw()
+  love.graphics.setColor(255,255,255) &mdash; apparently we need to do this to prevent tint
+  Mapper.maps[Mapper.currentLevelIndex]:draw()
+end</p>
+
+<p>function Mapper.getCurrentMap()
+  return maps[currentLevelIndex]
+end</p>
+
+<p>&mdash; init and return
+local function init()
+  tileLoader.path = &ldquo;maps/&rdquo;</p>
+
+<p>  for i=1, TOTAL_LEVELS do</p>
+
+<pre><code>local map = tileLoader.load(buildMapName(i))
+
+map:setDrawRange(0,0,love.graphics.getWidth(), love.graphics.getHeight())
+map.drawObjects = false
+
+Mapper.maps[i] = map
+</code></pre>
+
+<p>  end</p>
+
+<p>  return Mapper
+end</p>
+
+<p>return init()
+```</p>
+
+<p>And that&rsquo;s it.</p>
+]]></content>
+  </entry>
+  
+</feed>
