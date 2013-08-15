@@ -4,7 +4,7 @@
   <title><![CDATA[this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-08-15T00:18:27-07:00</updated>
+  <updated>2013-08-15T15:56:44-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -14,10 +14,13 @@
 
   
   <entry>
+    
     <title type="html"><![CDATA[Testing Code Highlighting]]></title>
     <link href="http://y2bd.github.io/blog/2013/08/14/testing-code-highlighting/"/>
+    
     <updated>2013-08-14T19:19:00-07:00</updated>
     <id>http://y2bd.github.io/blog/2013/08/14/testing-code-highlighting</id>
+    
     <content type="html"><![CDATA[<p>Let&rsquo;s see how syntax-highlighting works with this.</p>
 
 <p>Here is some Lua code for a Love2D-based game:</p>
@@ -121,15 +124,20 @@
 
 <p>And that&rsquo;s it.</p>
 ]]></content>
+    
   </entry>
   
   <entry>
+    
     <title type="html"><![CDATA[This is a beginning]]></title>
     <link href="http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning/"/>
+    
     <updated>2013-08-14T16:18:00-07:00</updated>
     <id>http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning</id>
+    
     <content type="html"><![CDATA[<p>Let us see where it brings us. Right now the site theme is pretty <em>ehh</em>, and I have to configure my actual domain to point to this.</p>
 ]]></content>
+    
   </entry>
   
 </feed>
