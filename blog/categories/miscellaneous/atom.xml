@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: miscellaneous | this has yet to be defined]]></title>
+  <link href="http://y2bd.github.io/blog/categories/miscellaneous/atom.xml" rel="self"/>
+  <link href="http://y2bd.github.io/"/>
+  <updated>2013-08-15T16:13:49-07:00</updated>
+  <id>http://y2bd.github.io/</id>
+  <author>
+    <name><![CDATA[y2bd]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[This is a beginning]]></title>
+    <link href="http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning/"/>
+    <updated>2013-08-14T16:18:00-07:00</updated>
+    <id>http://y2bd.github.io/blog/2013/08/14/this-is-a-beginning</id>
+    <content type="html"><![CDATA[<p>Let us see where it brings us. Right now the site theme is pretty <em>ehh</em>, and I have to configure my actual domain to point to this.</p>
+]]></content>
+  </entry>
+  
+</feed>
