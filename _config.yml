@@ -7,7 +7,7 @@ title: this has yet to be defined
 subtitle: 
 author: y2bd
 simple_search: http://google.com/search
-description: y2bd's personal blog.
+description: y2bd's personal blog. usually programming, but not always.
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -63,13 +63,13 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # ----------------------- #
 
 # Github repositories
-github_user:
-github_repo_count: 0
+github_user: y2bd
+github_repo_count: 3
 github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
+twitter_user: y2bd
 twitter_tweet_button: true
 
 # Google +1
