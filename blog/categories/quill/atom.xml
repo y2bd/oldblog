@@ -4,7 +4,7 @@
   <title><![CDATA[Category: quill | this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/blog/categories/quill/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-08-16T20:28:18-07:00</updated>
+  <updated>2013-08-16T20:35:03-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -75,7 +75,7 @@
 
 <p>I tried adjusting margins, hardcoding widths, <code>HorizontalAlignment=Stretch</code> <em>everything</em>, and either it wouldn&rsquo;t work, or it would make things even worse.</p>
 
-<p>After a lot of vague googling (what exactly would you call this problem? I honestly had no idea), I arrove at the correct solution. My <code>EntryItemTemplateSelector</code>, inheriting from <code>ContentControl</code>, has a new property named <code>HorizontalControlAlignment</code>, which <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.control.horizontalcontentalignment.aspx">sets the alignment of the control&rsquo;s <em>content</em> rather than the control itself</a>. So all you have to do then is</p>
+<p>After a lot of vague googling (what exactly would you call this problem? I honestly had no idea), I arrove at the correct solution. My <code>EntryItemTemplateSelector</code>, inheriting from <code>ContentControl</code>, has a new property named <code>HorizontalContentAlignment</code>, which <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.control.horizontalcontentalignment.aspx">sets the alignment of the control&rsquo;s <em>content</em> rather than the control itself</a>. So all you have to do then is</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="ni">&amp;lt;</span>sel:EntryItemTemplateSelector HorizontalContentAlignment=<span class="ni">&amp;ldquo;</span>Stretch<span class="ni">&amp;rdquo;</span>&gt;
