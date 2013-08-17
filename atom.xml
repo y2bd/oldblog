@@ -4,7 +4,7 @@
   <title><![CDATA[this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-08-15T16:13:49-07:00</updated>
+  <updated>2013-08-16T20:28:18-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -12,6 +12,82 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Fixing alignment issues with DataTemplateSelector]]></title>
+    <link href="http://y2bd.github.io/blog/2013/08/16/fixing-alignment-issues-with-datatemplateselector/"/>
+    
+    <updated>2013-08-16T19:24:00-07:00</updated>
+    <id>http://y2bd.github.io/blog/2013/08/16/fixing-alignment-issues-with-datatemplateselector</id>
+    
+    <content type="html"><![CDATA[<p>I&rsquo;m currently working on a journaling application for WP8. While designing the page for browsing through past entries, I found that I needed to be able to switch between data templates for the <code>LongListSelector</code> housed in the page. Some journal entries would have just text, some would have only a header photo, and some would have both, and I needed to display the entries differently for all three cases.</p>
+
+<!-- more -->
+
+
+<p>I found <a href="http://www.geekchamp.com/articles/implementing-windows-phone-7-datatemplateselector-and-customdatatemplateselector">this article</a> describing how to recreate WPF&rsquo;s <code>DataTemplateSelector</code> class for Windows Phone. It worked fine&mdash;after remaking the base abstract class and extending it for my specific case, all you need to do is specify the different data templates in your xaml:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;DataTemplate</span> <span class="na">x:Key=</span><span class="s">&quot;EntryListItemTemplate&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;sel:EntryItemTemplateSelector&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;sel:EntryItemTemplateSelector.Both&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;DataTemplate&gt;</span> <span class="c">&lt;!-- content here --&gt;</span> <span class="nt">&lt;/DataTemplate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/sel:EntryItemTemplateSelector.Both&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;sel:EntryItemTemplateSelector.OnlyImage&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;DataTemplate&gt;</span> <span class="c">&lt;!-- content here --&gt;</span> <span class="nt">&lt;/DataTemplate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/sel:EntryItemTemplateSelector.OnlyImage&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;sel:EntryItemTemplateSelector.OnlyText&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;DataTemplate&gt;</span> <span class="c">&lt;!-- content here --&gt;</span> <span class="nt">&lt;/DataTemplate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/sel:EntryItemTemplateSelector.OnlyText&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/sel:EntryItemTemplateSelector&gt;</span>
+</span><span class='line'><span class="nt">&lt;/DataTemplate&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A bit verbose, but it got the job done thankfully. The LongListSelector would now switch between templates as required.</p>
+
+<p>There was a bit of a problem though.</p>
+
+<p><img src="http://y2bd.github.io/images/posts/centered.png" title="'All of the elements are centered and small!'" ></p>
+
+<p>Mordecai has the right idea.</p>
+
+<p>All of the elements in the LongListSelector were no longer listening to the standard alignment and sizing rules, instead being only as wide as their content and staying put in the center.</p>
+
+<p>I tried adjusting margins, hardcoding widths, <code>HorizontalAlignment=Stretch</code> <em>everything</em>, and either it wouldn&rsquo;t work, or it would make things even worse.</p>
+
+<p>After a lot of vague googling (what exactly would you call this problem? I honestly had no idea), I arrove at the correct solution. My <code>EntryItemTemplateSelector</code>, inheriting from <code>ContentControl</code>, has a new property named <code>HorizontalControlAlignment</code>, which <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.control.horizontalcontentalignment.aspx">sets the alignment of the control&rsquo;s <em>content</em> rather than the control itself</a>. So all you have to do then is</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;sel:EntryItemTemplateSelector</span> <span class="na">HorizontalContentAlignment=</span><span class="s">&quot;Stretch&quot;</span><span class="nt">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which gets you</p>
+
+<p><img src="http://y2bd.github.io/images/posts/aligned.png" title="'Now every element is taking up the correct amount of space!'" ></p>
+
+<p>Nothing satisfies Mordecai though.</p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
