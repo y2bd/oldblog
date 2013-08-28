@@ -8,8 +8,6 @@ categories: [programming, lua]
 
 Let's see how syntax-highlighting works with this.
 
-<!-- more -->
-
 Here is some Lua code for a Love2D-based game:
 
 ``` lua

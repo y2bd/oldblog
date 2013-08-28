@@ -8,8 +8,6 @@ categories: [windows phone, csharp, programming, quill]
 
 I'm currently working on a journaling application for WP8. While designing the page for browsing through past entries, I found that I needed to be able to switch between data templates for the `LongListSelector` housed in the page. Some journal entries would have just text, some would have only a header photo, and some would have both, and I needed to display the entries differently for all three cases.
 
-<!-- more -->
-
 I found [this article](http://www.geekchamp.com/articles/implementing-windows-phone-7-datatemplateselector-and-customdatatemplateselector) describing how to recreate WPF's `DataTemplateSelector` class for Windows Phone. It worked fine--after remaking the base abstract class and extending it for my specific case, all you need to do is specify the different data templates in your xaml:
 
 {% codeblock lang:xml %}
@@ -42,7 +40,7 @@ All of the elements in the LongListSelector were no longer listening to the stan
 
 I tried adjusting margins, hardcoding widths, `HorizontalAlignment=Stretch` *everything*, and either it wouldn't work, or it would make things even worse.
 
-After a lot of vague googling (what exactly would you call this problem? I honestly had no idea), I arrove at the correct solution. My `EntryItemTemplateSelector`, inheriting from `ContentControl`, has a new property named `HorizontalControlAlignment`, which [sets the alignment of the control's *content* rather than the control itself](http://msdn.microsoft.com/en-us/library/system.windows.controls.control.horizontalcontentalignment.aspx). So all you have to do then is
+After a lot of vague googling (what exactly would you call this problem? I honestly had no idea), I arrove at the correct solution. My `EntryItemTemplateSelector`, inheriting from `ContentControl`, has a new property named `HorizontalContentAlignment`, which [sets the alignment of the control's *content* rather than the control itself](http://msdn.microsoft.com/en-us/library/system.windows.controls.control.horizontalcontentalignment.aspx). So all you have to do then is
 
 {% codeblock lang:xml %}
 <sel:EntryItemTemplateSelector HorizontalContentAlignment="Stretch">
