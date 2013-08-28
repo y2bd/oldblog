@@ -4,7 +4,7 @@
   <title><![CDATA[Category: quill | this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/blog/categories/quill/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-08-27T20:48:02-07:00</updated>
+  <updated>2013-08-27T20:48:46-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -19,9 +19,6 @@
     <updated>2013-08-16T19:24:00-07:00</updated>
     <id>http://y2bd.github.io/blog/2013/08/16/fixing-alignment-issues-with-datatemplateselector</id>
     <content type="html"><![CDATA[<p>I&rsquo;m currently working on a journaling application for WP8. While designing the page for browsing through past entries, I found that I needed to be able to switch between data templates for the <code>LongListSelector</code> housed in the page. Some journal entries would have just text, some would have only a header photo, and some would have both, and I needed to display the entries differently for all three cases.</p>
-
-<!-- more -->
-
 
 <p>I found <a href="http://www.geekchamp.com/articles/implementing-windows-phone-7-datatemplateselector-and-customdatatemplateselector">this article</a> describing how to recreate WPF&rsquo;s <code>DataTemplateSelector</code> class for Windows Phone. It worked fine&mdash;after remaking the base abstract class and extending it for my specific case, all you need to do is specify the different data templates in your xaml:</p>
 

@@ -387,12 +387,67 @@ supporting landscape, etc).</p>
 
   <div class="entry-content"><p>I&rsquo;m currently working on a journaling application for WP8. While designing the page for browsing through past entries, I found that I needed to be able to switch between data templates for the <code>LongListSelector</code> housed in the page. Some journal entries would have just text, some would have only a header photo, and some would have both, and I needed to display the entries differently for all three cases.</p>
 
+<p>I found <a href="http://www.geekchamp.com/articles/implementing-windows-phone-7-datatemplateselector-and-customdatatemplateselector">this article</a> describing how to recreate WPF&rsquo;s <code>DataTemplateSelector</code> class for Windows Phone. It worked fine&mdash;after remaking the base abstract class and extending it for my specific case, all you need to do is specify the different data templates in your xaml:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;DataTemplate</span> <span class="na">x:Key=</span><span class="s">&quot;EntryListItemTemplate&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;sel:EntryItemTemplateSelector&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;sel:EntryItemTemplateSelector.Both&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;DataTemplate&gt;</span> <span class="c">&lt;!-- content here --&gt;</span> <span class="nt">&lt;/DataTemplate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/sel:EntryItemTemplateSelector.Both&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;sel:EntryItemTemplateSelector.OnlyImage&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;DataTemplate&gt;</span> <span class="c">&lt;!-- content here --&gt;</span> <span class="nt">&lt;/DataTemplate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/sel:EntryItemTemplateSelector.OnlyImage&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;sel:EntryItemTemplateSelector.OnlyText&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;DataTemplate&gt;</span> <span class="c">&lt;!-- content here --&gt;</span> <span class="nt">&lt;/DataTemplate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/sel:EntryItemTemplateSelector.OnlyText&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/sel:EntryItemTemplateSelector&gt;</span>
+</span><span class='line'><span class="nt">&lt;/DataTemplate&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A bit verbose, but it got the job done thankfully. The LongListSelector would now switch between templates as required.</p>
+
+<p>There was a bit of a problem though.</p>
+
+<p><img src="/images/posts/centered.png" title="'All of the elements are centered and small!'" ></p>
+
+<p>Mordecai has the right idea.</p>
+
+<p>All of the elements in the LongListSelector were no longer listening to the standard alignment and sizing rules, instead being only as wide as their content and staying put in the center.</p>
+
+<p>I tried adjusting margins, hardcoding widths, <code>HorizontalAlignment=Stretch</code> <em>everything</em>, and either it wouldn&rsquo;t work, or it would make things even worse.</p>
+
+<p>After a lot of vague googling (what exactly would you call this problem? I honestly had no idea), I arrove at the correct solution. My <code>EntryItemTemplateSelector</code>, inheriting from <code>ContentControl</code>, has a new property named <code>HorizontalContentAlignment</code>, which <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.control.horizontalcontentalignment.aspx">sets the alignment of the control&rsquo;s <em>content</em> rather than the control itself</a>. So all you have to do then is</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;sel:EntryItemTemplateSelector</span> <span class="na">HorizontalContentAlignment=</span><span class="s">&quot;Stretch&quot;</span><span class="nt">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which gets you</p>
+
+<p><img src="/images/posts/aligned.png" title="'Now every element is taking up the correct amount of space!'" ></p>
+
+<p>Nothing satisfies Mordecai though.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/08/16/fixing-alignment-issues-with-datatemplateselector/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -430,12 +485,108 @@ supporting landscape, etc).</p>
 
   <div class="entry-content"><p>Let&rsquo;s see how syntax-highlighting works with this.</p>
 
+<p>Here is some Lua code for a Love2D-based game:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='lua'><span class='line'><span class="c1">-- mapper.lua</span>
+</span><span class='line'><span class="c1">-- loads the maps and draws them to the screen</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- requires</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">tileLoader</span> <span class="o">=</span> <span class="nb">require</span><span class="p">(</span><span class="s2">&quot;</span><span class="s">libs.advtileloader.Loader&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- constants</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">TOTAL_LEVELS</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- local vars</span>
+</span><span class='line'><span class="kd">local</span> <span class="k">function</span> <span class="nf">buildMapName</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;</span><span class="s">level_&quot;</span> <span class="o">..</span> <span class="n">index</span> <span class="o">..</span> <span class="s2">&quot;</span><span class="s">.tmx&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- module</span>
+</span><span class='line'><span class="kd">local</span> <span class="n">Mapper</span> <span class="o">=</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">currentLevelIndex</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">maps</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nc">Mapper</span><span class="p">.</span><span class="nf">draw</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">love</span><span class="p">.</span><span class="n">graphics</span><span class="p">.</span><span class="n">setColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span> <span class="c1">-- apparently we need to do this to prevent tint</span>
+</span><span class='line'>  <span class="n">Mapper</span><span class="p">.</span><span class="n">maps</span><span class="p">[</span><span class="n">Mapper</span><span class="p">.</span><span class="n">currentLevelIndex</span><span class="p">]:</span><span class="n">draw</span><span class="p">()</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">function</span> <span class="nc">Mapper</span><span class="p">.</span><span class="nf">getCurrentMap</span><span class="p">()</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">maps</span><span class="p">[</span><span class="n">currentLevelIndex</span><span class="p">]</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">-- init and return</span>
+</span><span class='line'><span class="kd">local</span> <span class="k">function</span> <span class="nf">init</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">tileLoader</span><span class="p">.</span><span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">maps/&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">TOTAL_LEVELS</span> <span class="k">do</span>
+</span><span class='line'>    <span class="kd">local</span> <span class="n">map</span> <span class="o">=</span> <span class="n">tileLoader</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">buildMapName</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">map</span><span class="p">:</span><span class="n">setDrawRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">love</span><span class="p">.</span><span class="n">graphics</span><span class="p">.</span><span class="n">getWidth</span><span class="p">(),</span> <span class="n">love</span><span class="p">.</span><span class="n">graphics</span><span class="p">.</span><span class="n">getHeight</span><span class="p">())</span>
+</span><span class='line'>    <span class="n">map</span><span class="p">.</span><span class="n">drawObjects</span> <span class="o">=</span> <span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Mapper</span><span class="p">.</span><span class="n">maps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">map</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">Mapper</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="n">init</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/08/14/testing-code-highlighting/">Read on &rarr;</a>
-    </footer>
   
 
 
