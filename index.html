@@ -9,7 +9,8 @@
   <meta name="author" content="y2bd">
 
   
-  <meta name="description" content="I&rsquo;m currently working on a journaling application for WP8. While designing the page for browsing through past entries, I found that I needed to &hellip;">
+  <meta name="description" content="I&rsquo;m still working on Quill, but I figured this construct was useful enough for me to save in its
+purest form, before I uglify it with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -61,6 +62,298 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/27/my-multiline-textbox-configuration/">My Multiline Textbox Configuration</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-08-27T20:04:00-07:00" pubdate data-updated="true">Aug 27<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&rsquo;m still working on Quill, but I figured this construct was useful enough for me to save in its
+purest form, before I uglify it with orientation hacks.</p>
+
+<p>This is an implementation of a properly-behaving multiline TextBox for Windows Phone. The original implementation
+was sourced from <a href="http://klingdigital.net/2013/06/scrollviewer-and-multiline-textbox-windowsphone">KlingDigital</a>.
+I just made extremely minor modifications, mostly refactoring to make it easier to modify (adding an input scope,
+supporting landscape, etc).</p>
+
+<p>Here is the XAML:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;phone:PhoneApplicationPage</span>
+</span><span class='line'>    <span class="na">x:Class=</span><span class="s">&quot;Autocomplete.MainPage&quot;</span>
+</span><span class='line'>    <span class="na">xmlns=</span><span class="s">&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:x=</span><span class="s">&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:phone=</span><span class="s">&quot;clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:shell=</span><span class="s">&quot;clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:d=</span><span class="s">&quot;http://schemas.microsoft.com/expression/blend/2008&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:mc=</span><span class="s">&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;</span>
+</span><span class='line'>    <span class="na">mc:Ignorable=</span><span class="s">&quot;d&quot;</span>
+</span><span class='line'>    <span class="na">FontFamily=</span><span class="s">&quot;{StaticResource PhoneFontFamilyNormal}&quot;</span>
+</span><span class='line'>    <span class="na">FontSize=</span><span class="s">&quot;{StaticResource PhoneFontSizeNormal}&quot;</span>
+</span><span class='line'>    <span class="na">Foreground=</span><span class="s">&quot;{StaticResource PhoneForegroundBrush}&quot;</span>
+</span><span class='line'>    <span class="na">SupportedOrientations=</span><span class="s">&quot;Portrait&quot;</span> <span class="na">Orientation=</span><span class="s">&quot;Portrait&quot;</span>
+</span><span class='line'>    <span class="na">shell:SystemTray.IsVisible=</span><span class="s">&quot;True&quot;</span>
+</span><span class='line'>    <span class="na">Loaded=</span><span class="s">&quot;PhoneApplicationPage_Loaded&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c">&lt;!--LayoutRoot is the root grid where all page content is placed--&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;Grid</span> <span class="na">x:Name=</span><span class="s">&quot;LayoutRoot&quot;</span> <span class="na">Background=</span><span class="s">&quot;Transparent&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;Grid.RowDefinitions&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;RowDefinition/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;RowDefinition</span> <span class="na">Height=</span><span class="s">&quot;Auto&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/Grid.RowDefinitions&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;ScrollViewer</span> <span class="na">x:Name=</span><span class="s">&quot;Scroller&quot;</span>
+</span><span class='line'>                      <span class="na">Background=</span><span class="s">&quot;#1ba1e2&quot;</span>
+</span><span class='line'>                      <span class="na">Grid.Row=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;StackPanel</span> <span class="na">VerticalAlignment=</span><span class="s">&quot;Top&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;TextBox</span> <span class="na">x:Name=</span><span class="s">&quot;ScrollerInput&quot;</span>
+</span><span class='line'>                         <span class="na">TextWrapping=</span><span class="s">&quot;Wrap&quot;</span>
+</span><span class='line'>                         <span class="na">AcceptsReturn=</span><span class="s">&quot;True&quot;</span>
+</span><span class='line'>                         <span class="na">TextChanged=</span><span class="s">&quot;ScrollerInput_TextChanged&quot;</span>
+</span><span class='line'>                         <span class="na">GotFocus=</span><span class="s">&quot;ScrollerInput_GotFocus&quot;</span>
+</span><span class='line'>                         <span class="na">LostFocus=</span><span class="s">&quot;ScrollerInput_LostFocus&quot;</span>
+</span><span class='line'>                         <span class="na">Tap=</span><span class="s">&quot;ScrollerInput_Tap&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/StackPanel&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/ScrollViewer&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;Grid</span> <span class="na">x:Name=</span><span class="s">&quot;KeyboardPlaceholder&quot;</span>
+</span><span class='line'>              <span class="na">Grid.Row=</span><span class="s">&quot;1&quot;</span>
+</span><span class='line'>              <span class="na">Visibility=</span><span class="s">&quot;Collapsed&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/Grid&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/phone:PhoneApplicationPage&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and here is the codebehind:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">using</span> <span class="nn">Microsoft.Phone.Controls</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Windows</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Windows.Controls</span><span class="p">;</span>
+</span><span class='line'><span class="k">using</span> <span class="nn">System.Windows.Media</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="nn">Autocomplete</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">public</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">MainPage</span> <span class="p">:</span> <span class="n">PhoneApplicationPage</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">private</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">PortraitHeight</span> <span class="p">=</span> <span class="m">336</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="kt">double</span> <span class="n">_inputHeight</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">private</span> <span class="kt">double</span> <span class="n">_tapHeight</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Constructor</span>
+</span><span class='line'>    <span class="k">public</span> <span class="nf">MainPage</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="n">InitializeComponent</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">SizePlaceholder</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="n">KeyboardPlaceholder</span><span class="p">.</span><span class="n">Height</span> <span class="p">=</span> <span class="n">PortraitHeight</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">ForceLayout</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="n">App</span><span class="p">.</span><span class="n">RootFrame</span><span class="p">.</span><span class="n">RenderTransform</span> <span class="p">=</span> <span class="k">new</span> <span class="n">CompositeTransform</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">LayoutRoot</span><span class="p">.</span><span class="n">UpdateLayout</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">PhoneApplicationPage_Loaded</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">ScrollerInput_TextChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">TextChangedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// updates seem to be late if we don&#39;t invoke them with the dispatcher</span>
+</span><span class='line'>      <span class="n">Dispatcher</span><span class="p">.</span><span class="n">BeginInvoke</span><span class="p">(()</span> <span class="p">=&gt;</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>        <span class="kt">double</span> <span class="n">currentInputHeight</span> <span class="p">=</span> <span class="n">ScrollerInput</span><span class="p">.</span><span class="n">ActualHeight</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">currentInputHeight</span> <span class="p">&gt;</span> <span class="n">_inputHeight</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// scroll up by the difference between the current box size and the old box size</span>
+</span><span class='line'>          <span class="n">Scroller</span><span class="p">.</span><span class="n">ScrollToVerticalOffset</span><span class="p">(</span><span class="n">Scroller</span><span class="p">.</span><span class="n">VerticalOffset</span> <span class="p">+</span> <span class="n">currentInputHeight</span> <span class="p">-</span> <span class="n">_inputHeight</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">_inputHeight</span> <span class="p">=</span> <span class="n">currentInputHeight</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">ScrollerInput_GotFocus</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="n">KeyboardPlaceholder</span><span class="p">.</span><span class="n">Visibility</span> <span class="p">=</span> <span class="n">Visibility</span><span class="p">.</span><span class="n">Visible</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">SizePlaceholder</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">ForceLayout</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">Scroller</span><span class="p">.</span><span class="n">ScrollToVerticalOffset</span><span class="p">(</span><span class="n">_tapHeight</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">ScrollerInput_LostFocus</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="n">KeyboardPlaceholder</span><span class="p">.</span><span class="n">Visibility</span> <span class="p">=</span> <span class="n">Visibility</span><span class="p">.</span><span class="n">Collapsed</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">private</span> <span class="k">void</span> <span class="nf">ScrollerInput_Tap</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">System</span><span class="p">.</span><span class="n">Windows</span><span class="p">.</span><span class="n">Input</span><span class="p">.</span><span class="n">GestureEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="n">_tapHeight</span> <span class="p">=</span> <span class="n">e</span><span class="p">.</span><span class="n">GetPosition</span><span class="p">(</span><span class="n">ScrollerInput</span><span class="p">).</span><span class="n">Y</span> <span class="p">-</span> <span class="m">120</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hopefully this template will prove useful in the future.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -197,6 +490,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/08/27/my-multiline-textbox-configuration/">My multiline Textbox configuration</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/08/16/fixing-alignment-issues-with-datatemplateselector/">Fixing alignment issues with DataTemplateSelector</a>

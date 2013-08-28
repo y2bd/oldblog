@@ -4,7 +4,7 @@
   <title><![CDATA[Category: windows phone | this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/blog/categories/windows-phone/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-08-16T23:23:03-07:00</updated>
+  <updated>2013-08-27T20:48:02-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -12,6 +12,156 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[My multiline Textbox configuration]]></title>
+    <link href="http://y2bd.github.io/blog/2013/08/27/my-multiline-textbox-configuration/"/>
+    <updated>2013-08-27T20:04:00-07:00</updated>
+    <id>http://y2bd.github.io/blog/2013/08/27/my-multiline-textbox-configuration</id>
+    <content type="html"><![CDATA[<p>I&rsquo;m still working on Quill, but I figured this construct was useful enough for me to save in its
+purest form, before I uglify it with orientation hacks.</p>
+
+<p>This is an implementation of a properly-behaving multiline TextBox for Windows Phone. The original implementation
+was sourced from <a href="http://klingdigital.net/2013/06/scrollviewer-and-multiline-textbox-windowsphone">KlingDigital</a>.
+I just made extremely minor modifications, mostly refactoring to make it easier to modify (adding an input scope,
+supporting landscape, etc).</p>
+
+<p>Here is the XAML:</p>
+
+<p>``` xml
+&lt;phone:PhoneApplicationPage</p>
+
+<pre><code>x:Class="Autocomplete.MainPage"
+xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+mc:Ignorable="d"
+FontFamily="{StaticResource PhoneFontFamilyNormal}"
+FontSize="{StaticResource PhoneFontSizeNormal}"
+Foreground="{StaticResource PhoneForegroundBrush}"
+SupportedOrientations="Portrait" Orientation="Portrait"
+shell:SystemTray.IsVisible="True"
+Loaded="PhoneApplicationPage_Loaded"&gt;
+
+&lt;!--LayoutRoot is the root grid where all page content is placed--&gt;
+&lt;Grid x:Name="LayoutRoot" Background="Transparent"&gt;
+    &lt;Grid.RowDefinitions&gt;
+        &lt;RowDefinition/&gt;
+        &lt;RowDefinition Height="Auto" /&gt;
+    &lt;/Grid.RowDefinitions&gt;
+
+    &lt;ScrollViewer x:Name="Scroller"
+                  Background="#1ba1e2"
+                  Grid.Row="0"&gt;
+        &lt;StackPanel VerticalAlignment="Top"&gt;
+            &lt;TextBox x:Name="ScrollerInput"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True" 
+                     TextChanged="ScrollerInput_TextChanged"
+                     GotFocus="ScrollerInput_GotFocus"
+                     LostFocus="ScrollerInput_LostFocus"
+                     Tap="ScrollerInput_Tap"/&gt;
+        &lt;/StackPanel&gt;
+    &lt;/ScrollViewer&gt;
+
+    &lt;Grid x:Name="KeyboardPlaceholder"
+          Grid.Row="1"
+          Visibility="Collapsed" /&gt;
+&lt;/Grid&gt;    
+</code></pre>
+
+<p>&lt;/phone:PhoneApplicationPage>
+```</p>
+
+<p>and here is the codebehind:</p>
+
+<p>``` csharp
+using Microsoft.Phone.Controls;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;</p>
+
+<p>namespace Autocomplete
+{
+  public partial class MainPage : PhoneApplicationPage
+  {</p>
+
+<pre><code>private const int PortraitHeight = 336;
+
+private double _inputHeight = 0;
+private double _tapHeight = 0;
+
+// Constructor
+public MainPage()
+{
+  InitializeComponent();
+}
+
+private void SizePlaceholder()
+{
+  KeyboardPlaceholder.Height = PortraitHeight;
+}
+
+private void ForceLayout()
+{
+  App.RootFrame.RenderTransform = new CompositeTransform();
+
+  LayoutRoot.UpdateLayout();
+}
+
+private void PhoneApplicationPage_Loaded(object sender, RoutedEventArgs e)
+{
+
+}
+
+private void ScrollerInput_TextChanged(object sender, TextChangedEventArgs e)
+{
+  // updates seem to be late if we don't invoke them with the dispatcher
+  Dispatcher.BeginInvoke(() =&gt;
+  {
+    double currentInputHeight = ScrollerInput.ActualHeight;
+
+    if (currentInputHeight &gt; _inputHeight)
+    {
+      // scroll up by the difference between the current box size and the old box size
+      Scroller.ScrollToVerticalOffset(Scroller.VerticalOffset + currentInputHeight - _inputHeight);
+    }
+
+    _inputHeight = currentInputHeight;
+  });
+}
+
+private void ScrollerInput_GotFocus(object sender, RoutedEventArgs e)
+{
+  KeyboardPlaceholder.Visibility = Visibility.Visible;
+  SizePlaceholder();
+
+  ForceLayout();
+
+  Scroller.ScrollToVerticalOffset(_tapHeight);
+}
+
+private void ScrollerInput_LostFocus(object sender, RoutedEventArgs e)
+{
+  KeyboardPlaceholder.Visibility = Visibility.Collapsed;
+}
+
+private void ScrollerInput_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+{
+  _tapHeight = e.GetPosition(ScrollerInput).Y - 120;
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>Hopefully this template will prove useful in the future.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fixing alignment issues with DataTemplateSelector]]></title>
