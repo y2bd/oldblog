@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Rendering BitmapImages with the Nokia Imaging SDK - this has yet to be defined</title>
+  <meta name="author" content="y2bd">
+
+  
+  <meta name="description" content="So I was working on integrating the Nokia Imaging SDK for my journal app, Sofa, for the Nokia Create contest, essentially letting the user crop and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="this has yet to be defined" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:y2bd.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Rendering BitmapImages With the Nokia Imaging SDK</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-15T14:04:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
+
+<p>I found myself using the SDK in my ViewModel and wondering how I was supposed to get the rendered image into my View. The SDK itself provides methods for rendering to JPEG, raw Bitmaps, WriteableBitmaps, and even Image controls. The Image controls option (<code>renderToImageAsync()</code>) sounded like the way to go, but I realized that in the VM I don&rsquo;t have access to the Image control in my view. Instead, I have access to a BitmapImage that binds to the Source property of the Image control. So how do you get a BitmapImage out of the editing session?</p>
+
+<p>Well after some searching I found that you can coax a BitmapImage out of a WriteableBitmap. Here&rsquo;s an extension method that lets you do exactly that:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">static</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">BitmapImage</span><span class="p">&gt;</span> <span class="n">RenderToBitmapImageAsync</span><span class="p">(</span><span class="k">this</span> <span class="n">IEditingSession</span> <span class="n">session</span><span class="p">,</span> <span class="kt">int</span> <span class="n">width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">height</span><span class="p">,</span> <span class="n">OutputOption</span> <span class="n">outputOption</span> <span class="p">=</span> <span class="n">OutputOption</span><span class="p">.</span><span class="n">PreserveAspectRatio</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">bi</span> <span class="p">=</span> <span class="k">new</span> <span class="n">BitmapImage</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">wbp</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WriteableBitmap</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">await</span> <span class="n">session</span><span class="p">.</span><span class="n">RenderToWriteableBitmapAsync</span><span class="p">(</span><span class="n">wbp</span><span class="p">,</span> <span class="n">outputOption</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">ms</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MemoryStream</span><span class="p">())</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">wbp</span><span class="p">.</span><span class="n">SaveJpeg</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">100</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">bi</span><span class="p">.</span><span class="n">SetSource</span><span class="p">(</span><span class="n">ms</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// not super necessary</span>
+</span><span class='line'>  <span class="n">wbp</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">bi</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Just put this into a static class (perhaps an Extensions.cs?) and then call</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="n">myBindedImage</span> <span class="p">=</span> <span class="k">await</span> <span class="n">_myEditSession</span><span class="p">.</span><span class="n">RenderToBitmapImageAsync</span><span class="p">(</span><span class="n">someWidth</span><span class="p">,</span> <span class="n">someHeight</span><span class="p">,</span> <span class="n">outputOptionIfYouWant</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that <a href="https://www.google.com/search?q=writeablebitmap+memory+leak">there may be memory issues with WriteableBitmaps</a>, so be wary of calling this often, especially with high widths and heights. You may need to force garbage collection after a few calls.</p>
+
+<p>Because of that, I&rsquo;m definitely not 100% keen on this method. It definitely works (wait for Sofa v1.1 to prove that) but I&rsquo;ll be on the lookout for less memory-intensive options.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">y2bd</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-15T14:04:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/nokia/'>nokia</a>, <a class='category' href='/blog/categories/sofa/'>sofa</a>, <a class='category' href='/blog/categories/windows-phone/'>windows phone</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/" data-via="y2bd" data-counturl="http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/09/sofa-is-done/" title="Previous Post: Sofa is done!">&laquo; Sofa is done!</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering BitmapImages with the Nokia Imaging SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/09/sofa-is-done/">Sofa is done!</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/27/my-multiline-textbox-configuration/">My multiline Textbox configuration</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/16/fixing-alignment-issues-with-datatemplateselector/">Fixing alignment issues with DataTemplateSelector</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/14/testing-code-highlighting/">Testing Code Highlighting</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/y2bd">@y2bd</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'y2bd',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - y2bd <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a>, customized with <a href="https://github.com/mjhea0/whiterspace">whiterspace</a>.</span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

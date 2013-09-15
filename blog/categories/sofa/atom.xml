@@ -4,7 +4,7 @@
   <title><![CDATA[Category: sofa | this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/blog/categories/sofa/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-09-09T21:53:00-07:00</updated>
+  <updated>2013-09-15T14:27:45-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -12,6 +12,53 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Rendering BitmapImages with the Nokia Imaging SDK]]></title>
+    <link href="http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/"/>
+    <updated>2013-09-15T14:04:00-07:00</updated>
+    <id>http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk</id>
+    <content type="html"><![CDATA[<p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
+
+<p>I found myself using the SDK in my ViewModel and wondering how I was supposed to get the rendered image into my View. The SDK itself provides methods for rendering to JPEG, raw Bitmaps, WriteableBitmaps, and even Image controls. The Image controls option (<code>renderToImageAsync()</code>) sounded like the way to go, but I realized that in the VM I don&rsquo;t have access to the Image control in my view. Instead, I have access to a BitmapImage that binds to the Source property of the Image control. So how do you get a BitmapImage out of the editing session?</p>
+
+<p>Well after some searching I found that you can coax a BitmapImage out of a WriteableBitmap. Here&rsquo;s an extension method that lets you do exactly that:</p>
+
+<p>``` csharp
+public static async Task<BitmapImage> RenderToBitmapImageAsync(this IEditingSession session, int width, int height, OutputOption outputOption = OutputOption.PreserveAspectRatio)
+{
+  var bi = new BitmapImage();</p>
+
+<p>  var wbp = new WriteableBitmap(width, height);
+  await session.RenderToWriteableBitmapAsync(wbp, outputOption);</p>
+
+<p>  using (var ms = new MemoryStream())
+  {</p>
+
+<pre><code>wbp.SaveJpeg(ms, width, height, 0, 100);
+bi.SetSource(ms);
+</code></pre>
+
+<p>  }</p>
+
+<p>  // not super necessary
+  wbp = null;</p>
+
+<p>  return bi;
+}
+```</p>
+
+<p>Just put this into a static class (perhaps an Extensions.cs?) and then call</p>
+
+<p><code>csharp
+myBindedImage = await _myEditSession.RenderToBitmapImageAsync(someWidth, someHeight, outputOptionIfYouWant);
+</code></p>
+
+<p>Note that <a href="https://www.google.com/search?q=writeablebitmap+memory+leak">there may be memory issues with WriteableBitmaps</a>, so be wary of calling this often, especially with high widths and heights. You may need to force garbage collection after a few calls.</p>
+
+<p>Because of that, I&rsquo;m definitely not 100% keen on this method. It definitely works (wait for Sofa v1.1 to prove that) but I&rsquo;ll be on the lookout for less memory-intensive options.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sofa is done!]]></title>

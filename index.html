@@ -9,7 +9,7 @@
   <meta name="author" content="y2bd">
 
   
-  <meta name="description" content="It&rsquo;s been almost two months now, but Sofa, my journal application for Windows Phone 8, is finally done! First of all, the last time I referred &hellip;">
+  <meta name="description" content="So I was working on integrating the Nokia Imaging SDK for my journal app, Sofa, for the Nokia Create contest, essentially letting the user crop and &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -61,6 +61,98 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering BitmapImages With the Nokia Imaging SDK</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-09-15T14:04:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
+
+<p>I found myself using the SDK in my ViewModel and wondering how I was supposed to get the rendered image into my View. The SDK itself provides methods for rendering to JPEG, raw Bitmaps, WriteableBitmaps, and even Image controls. The Image controls option (<code>renderToImageAsync()</code>) sounded like the way to go, but I realized that in the VM I don&rsquo;t have access to the Image control in my view. Instead, I have access to a BitmapImage that binds to the Source property of the Image control. So how do you get a BitmapImage out of the editing session?</p>
+
+<p>Well after some searching I found that you can coax a BitmapImage out of a WriteableBitmap. Here&rsquo;s an extension method that lets you do exactly that:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">static</span> <span class="k">async</span> <span class="n">Task</span><span class="p">&lt;</span><span class="n">BitmapImage</span><span class="p">&gt;</span> <span class="n">RenderToBitmapImageAsync</span><span class="p">(</span><span class="k">this</span> <span class="n">IEditingSession</span> <span class="n">session</span><span class="p">,</span> <span class="kt">int</span> <span class="n">width</span><span class="p">,</span> <span class="kt">int</span> <span class="n">height</span><span class="p">,</span> <span class="n">OutputOption</span> <span class="n">outputOption</span> <span class="p">=</span> <span class="n">OutputOption</span><span class="p">.</span><span class="n">PreserveAspectRatio</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">bi</span> <span class="p">=</span> <span class="k">new</span> <span class="n">BitmapImage</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">wbp</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WriteableBitmap</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">await</span> <span class="n">session</span><span class="p">.</span><span class="n">RenderToWriteableBitmapAsync</span><span class="p">(</span><span class="n">wbp</span><span class="p">,</span> <span class="n">outputOption</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">using</span> <span class="p">(</span><span class="kt">var</span> <span class="n">ms</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MemoryStream</span><span class="p">())</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">wbp</span><span class="p">.</span><span class="n">SaveJpeg</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">100</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">bi</span><span class="p">.</span><span class="n">SetSource</span><span class="p">(</span><span class="n">ms</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// not super necessary</span>
+</span><span class='line'>  <span class="n">wbp</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">bi</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Just put this into a static class (perhaps an Extensions.cs?) and then call</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="n">myBindedImage</span> <span class="p">=</span> <span class="k">await</span> <span class="n">_myEditSession</span><span class="p">.</span><span class="n">RenderToBitmapImageAsync</span><span class="p">(</span><span class="n">someWidth</span><span class="p">,</span> <span class="n">someHeight</span><span class="p">,</span> <span class="n">outputOptionIfYouWant</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that <a href="https://www.google.com/search?q=writeablebitmap+memory+leak">there may be memory issues with WriteableBitmaps</a>, so be wary of calling this often, especially with high widths and heights. You may need to force garbage collection after a few calls.</p>
+
+<p>Because of that, I&rsquo;m definitely not 100% keen on this method. It definitely works (wait for Sofa v1.1 to prove that) but I&rsquo;ll be on the lookout for less memory-intensive options.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -696,6 +788,10 @@ supporting landscape, etc).</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering BitmapImages with the Nokia Imaging SDK</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/09/09/sofa-is-done/">Sofa is done!</a>
       </li>
     
@@ -709,10 +805,6 @@ supporting landscape, etc).</p>
     
       <li class="post">
         <a href="/blog/2013/08/14/testing-code-highlighting/">Testing Code Highlighting</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/08/14/this-is-a-beginning/">This is a beginning</a>
       </li>
     
   </ul>
