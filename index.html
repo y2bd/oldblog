@@ -9,7 +9,7 @@
   <meta name="author" content="y2bd">
 
   
-  <meta name="description" content="So I was working on integrating the Nokia Imaging SDK for my journal app, Sofa, for the Nokia Create contest, essentially letting the user crop and &hellip;">
+  <meta name="description" content="Edit: After some searching, I&rsquo;ve found the Nokia-Certified&trade; method of rendering to a BitmapImage/ImageSource. First of all, Image &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,7 +68,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering BitmapImages With the Nokia Imaging SDK</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering Image Sources With the Nokia Imaging SDK</a></h1>
       
       
     
@@ -92,7 +92,52 @@
   </header>
 
 
-  <div class="entry-content"><p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
+  <div class="entry-content"><p><strong>Edit</strong>: After some searching, I&rsquo;ve found the Nokia-Certified&trade; method of rendering to a BitmapImage/ImageSource.</p>
+
+<p>First of all, Image controls can surprisingly take a WriteableBitmap as their source. You can do this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="n">BindedImageSource</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WriteableBitmap</span><span class="p">(</span><span class="m">1024</span><span class="p">,</span><span class="m">768</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and everything will be fine.</p>
+
+<p>Second, remember how <code>IEditingSession</code> has a <code>RenderToWriteableBitmap()</code> method?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="kt">var</span> <span class="n">myWBP</span> <span class="p">=</span> <span class="k">new</span> <span class="n">WriteableBitmap</span><span class="p">(</span><span class="m">1024</span><span class="p">,</span> <span class="m">768</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">await</span> <span class="n">_session</span><span class="p">.</span><span class="n">RenderToWriteableBitmapAsync</span><span class="p">(</span><span class="n">myWBP</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">myWBP</span><span class="p">.</span><span class="n">Invalidate</span><span class="p">();</span> <span class="c1">// forces a redraw</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">BindedImageSource</span> <span class="p">=</span> <span class="n">myWBP</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>An interesting side-note is that RenderToWriteableBitmap appears to be shorthand for</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="kt">var</span> <span class="n">bitmap</span> <span class="p">=</span> <span class="n">myWBP</span><span class="p">.</span><span class="n">AsBitmap</span><span class="p">();</span>
+</span><span class='line'><span class="k">await</span> <span class="n">_session</span><span class="p">.</span><span class="n">RenderToBitmapAsync</span><span class="p">(</span><span class="n">bitmap</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>bitmap</code> in this example is not a typical Bitmap, but a <a href="http://developer.nokia.com/Resources/Library/Imaging_API_Ref/#!nokiainteropserviceswindowsruntime-namespace/writeablebitmapextensions-class/writeablebitmapextensions-methods/asbitmap-method.html">mysterious object that wraps a WriteableBitmap&rsquo;s pixel data</a>. That means that changes to this bitmap <strong>affect the original WriteableBitmap</strong>. Now extracting it isn&rsquo;t very helpful in this small example, but if you check out the code for <a href="http://developer.nokia.com/Resources/Library/Lumia/#!nokia-imaging-sdk/sample-projects/filter-effects.html">Nokia&rsquo;s Filter Effects sample</a> (spefically checkout the <code>AbstractFilter</code> class) you can do some pretty neat things without having to create a new WriteableBitmap each time.</p>
+
+<p>I&rsquo;ll keep the original post below for context.</p>
+
+<hr />
+
+<p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
 
 <p>I found myself using the SDK in my ViewModel and wondering how I was supposed to get the rendered image into my View. The SDK itself provides methods for rendering to JPEG, raw Bitmaps, WriteableBitmaps, and even Image controls. The Image controls option (<code>renderToImageAsync()</code>) sounded like the way to go, but I realized that in the VM I don&rsquo;t have access to the Image control in my view. Instead, I have access to a BitmapImage that binds to the Source property of the Image control. So how do you get a BitmapImage out of the editing session?</p>
 
@@ -788,7 +833,7 @@ supporting landscape, etc).</p>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering BitmapImages with the Nokia Imaging SDK</a>
+        <a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering Image Sources with the Nokia Imaging SDK</a>
       </li>
     
       <li class="post">

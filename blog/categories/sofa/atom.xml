@@ -4,7 +4,7 @@
   <title><![CDATA[Category: sofa | this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/blog/categories/sofa/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-09-15T14:27:45-07:00</updated>
+  <updated>2013-09-15T22:37:56-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -14,11 +14,52 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Rendering BitmapImages with the Nokia Imaging SDK]]></title>
+    <title type="html"><![CDATA[Rendering Image Sources with the Nokia Imaging SDK]]></title>
     <link href="http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/"/>
     <updated>2013-09-15T14:04:00-07:00</updated>
     <id>http://y2bd.github.io/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk</id>
-    <content type="html"><![CDATA[<p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
+    <content type="html"><![CDATA[<p><strong>Edit</strong>: After some searching, I&rsquo;ve found the Nokia-Certified&trade; method of rendering to a BitmapImage/ImageSource.</p>
+
+<p>First of all, Image controls can surprisingly take a WriteableBitmap as their source. You can do this:</p>
+
+<p>``` csharp</p>
+
+<p>BindedImageSource = new WriteableBitmap(1024,768);</p>
+
+<p>```</p>
+
+<p>and everything will be fine.</p>
+
+<p>Second, remember how <code>IEditingSession</code> has a <code>RenderToWriteableBitmap()</code> method?</p>
+
+<p>``` csharp</p>
+
+<p>var myWBP = new WriteableBitmap(1024, 768);</p>
+
+<p>await _session.RenderToWriteableBitmapAsync(myWBP);</p>
+
+<p>myWBP.Invalidate(); // forces a redraw</p>
+
+<p>BindedImageSource = myWBP;</p>
+
+<p>```</p>
+
+<p>An interesting side-note is that RenderToWriteableBitmap appears to be shorthand for</p>
+
+<p>``` csharp</p>
+
+<p>var bitmap = myWBP.AsBitmap();
+await _session.RenderToBitmapAsync(bitmap);</p>
+
+<p>```</p>
+
+<p><code>bitmap</code> in this example is not a typical Bitmap, but a <a href="http://developer.nokia.com/Resources/Library/Imaging_API_Ref/#!nokiainteropserviceswindowsruntime-namespace/writeablebitmapextensions-class/writeablebitmapextensions-methods/asbitmap-method.html">mysterious object that wraps a WriteableBitmap&rsquo;s pixel data</a>. That means that changes to this bitmap <strong>affect the original WriteableBitmap</strong>. Now extracting it isn&rsquo;t very helpful in this small example, but if you check out the code for <a href="http://developer.nokia.com/Resources/Library/Lumia/#!nokia-imaging-sdk/sample-projects/filter-effects.html">Nokia&rsquo;s Filter Effects sample</a> (spefically checkout the <code>AbstractFilter</code> class) you can do some pretty neat things without having to create a new WriteableBitmap each time.</p>
+
+<p>I&rsquo;ll keep the original post below for context.</p>
+
+<hr />
+
+<p>So I was working on integrating the Nokia Imaging SDK for my journal app, <a href="http://blog.y2bd.me/sofa/">Sofa</a>, for the <a href="http://developer.nokia.com/create/">Nokia Create contest</a>, essentially letting the user crop and enhance their photos before attaching them to an entry.</p>
 
 <p>I found myself using the SDK in my ViewModel and wondering how I was supposed to get the rendered image into my View. The SDK itself provides methods for rendering to JPEG, raw Bitmaps, WriteableBitmaps, and even Image controls. The Image controls option (<code>renderToImageAsync()</code>) sounded like the way to go, but I realized that in the VM I don&rsquo;t have access to the Image control in my view. Instead, I have access to a BitmapImage that binds to the Source property of the Image control. So how do you get a BitmapImage out of the editing session?</p>
 
