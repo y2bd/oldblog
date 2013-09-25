@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AdSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CultureDescriptors>
+    <AdCultureDescriptor CultureName="default">
+      <Probabilities Probability="50" AdType="InnerActive" AppID="<InnerActiveAPPID" />
+      <Probabilities Probability="50" AdType="PubCenter" AppID="10953689-3ac2-47f9-becd-8d5fb2b1ef99" SecondaryID="10188743" />
+    </AdCultureDescriptor>
+  </CultureDescriptors>
+</AdSettings>
