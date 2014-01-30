@@ -4,7 +4,7 @@
   <title><![CDATA[Category: csharp | this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/blog/categories/csharp/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2013-11-01T00:06:41-07:00</updated>
+  <updated>2014-01-30T14:30:15-08:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -12,6 +12,51 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ordering voice commands on the "Did You Know?" page]]></title>
+    <link href="http://y2bd.github.io/blog/2014/01/30/ordering-voice-commands-on-the-did-you-know-page/"/>
+    <updated>2014-01-30T14:05:00-08:00</updated>
+    <id>http://y2bd.github.io/blog/2014/01/30/ordering-voice-commands-on-the-did-you-know-page</id>
+    <content type="html"><![CDATA[<p>Just a small tip for a small problem I ran into.</p>
+
+<p>If your WP app has voice commands defined, you&rsquo;ll get a &ldquo;Did You Know?&rdquo; page where the user can see examples of all of the
+voice commands your app has. If you have a lot of voice commands available, it might get a bit messy.</p>
+
+<p><img src="/images/posts/didyouknow.png" title="&lsquo;There\&rsquo;s no sense of order at all!&rsquo;" ></p>
+
+<p>What&rsquo;s more confusing is that the order of the commands on this page probably won&rsquo;t match up with the order
+you defined them in your VCD file.</p>
+
+<p>It turns out that they&rsquo;re displayed in alphabetical order, with the key being the <code>Name</code> attribute of your <code>Command</code> object, which means that you can adjust your names to order them how you want, perhaps by prepending them with letters or numbers.</p>
+
+<p>In my particular case, that means that my commands would go from</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchPokemon&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchMoves&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchTypes&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchDualTypes&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>to the following with numbered prefixes</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;00_SearchPokemon&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;01_SearchMoves&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;02_SearchTypes&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;03_SearchDualTypes&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you plan on inserting more commands later on, you&rsquo;ll have to rename older ones to get the order you want, so I&rsquo;d recommend using <code>string.Contains("base-name-of-command")</code> rather than equality checks in your code so that even if the prefix changes, your code will still work without having to do a million find-and-replaces.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fixing alignment issues with DataTemplateSelector]]></title>

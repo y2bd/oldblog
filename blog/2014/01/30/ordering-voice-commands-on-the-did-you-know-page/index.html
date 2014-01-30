@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: nokia - this has yet to be defined</title>
+  <title>Ordering voice commands on the "Did You Know?" page - this has yet to be defined</title>
   <meta name="author" content="y2bd">
 
   
-  <meta name="description" content="Category: nokia">
+  <meta name="description" content="Just a small tip for a small problem I ran into. If your WP app has voice commands defined, you&rsquo;ll get a &ldquo;Did You Know?&rdquo; page where &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://y2bd.github.ioblog/categories/nokia">
+  <link rel="canonical" href="http://y2bd.github.io/blog/2014/01/30/ordering-voice-commands-on-the-did-you-know-page">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="this has yet to be defined" type="application/atom+xml">
@@ -72,30 +72,124 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Nokia</h1>
+  
+    
+      <h1 class="entry-title">Ordering Voice Commands on the "Did You Know?" Page</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-30T14:05:00-08:00" pubdate data-updated="true">Jan 30<span>th</span>, 2014</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>Just a small tip for a small problem I ran into.</p>
 
-  
-  <h2>2013</h2>
+<p>If your WP app has voice commands defined, you&rsquo;ll get a &ldquo;Did You Know?&rdquo; page where the user can see examples of all of the
+voice commands your app has. If you have a lot of voice commands available, it might get a bit messy.</p>
 
-<article>
-  
-<h1><a href="/blog/2013/09/15/rendering-bitmapimages-with-the-nokia-imaging-sdk/">Rendering Image Sources with the Nokia Imaging SDK</a></h1>
-<time datetime="2013-09-15T14:04:00-07:00" pubdate><span class='month'>Sep</span> <span class='day'>15</span> <span class='year'>2013</span></time>
+<p><img src="/images/posts/didyouknow.png" title="'There\'s no sense of order at all!'" ></p>
 
-</article>
+<p>What&rsquo;s more confusing is that the order of the commands on this page probably won&rsquo;t match up with the order
+you defined them in your VCD file.</p>
 
+<p>It turns out that they&rsquo;re displayed in alphabetical order, with the key being the <code>Name</code> attribute of your <code>Command</code> object, which means that you can adjust your names to order them how you want, perhaps by prepending them with letters or numbers.</p>
+
+<p>In my particular case, that means that my commands would go from</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchPokemon&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchMoves&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchTypes&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;SearchDualTypes&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to the following with numbered prefixes</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;00_SearchPokemon&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;01_SearchMoves&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;02_SearchTypes&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;Command</span> <span class="na">Name=</span><span class="s">&quot;03_SearchDualTypes&quot;</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you plan on inserting more commands later on, you&rsquo;ll have to rename older ones to get the order you want, so I&rsquo;d recommend using <code>string.Contains("base-name-of-command")</code> rather than equality checks in your code so that even if the prefix changes, your code will still work without having to do a million find-and-replaces.</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">y2bd</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-30T14:05:00-08:00" pubdate data-updated="true">Jan 30<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/csharp/'>csharp</a>, <a class='category' href='/blog/categories/voice/'>voice</a>, <a class='category' href='/blog/categories/windows-phone/'>windows phone</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://y2bd.github.io/blog/2014/01/30/ordering-voice-commands-on-the-did-you-know-page/" data-via="y2bd" data-counturl="http://y2bd.github.io/blog/2014/01/30/ordering-voice-commands-on-the-did-you-know-page/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/31/fixing-the-long-list-selectors-scrollbar-spacing-issue/" title="Previous Post: Fixing the Long List Selector's Scrollbar Spacing Issue">&laquo; Fixing the Long List Selector's Scrollbar Spacing Issue</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>
