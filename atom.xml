@@ -4,7 +4,7 @@
   <title><![CDATA[this has yet to be defined]]></title>
   <link href="http://y2bd.github.io/atom.xml" rel="self"/>
   <link href="http://y2bd.github.io/"/>
-  <updated>2014-01-30T14:30:15-08:00</updated>
+  <updated>2014-03-18T17:45:42-07:00</updated>
   <id>http://y2bd.github.io/</id>
   <author>
     <name><![CDATA[y2bd]]></name>
@@ -12,6 +12,609 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Creating a parallax scrolling effect on Windows Phone]]></title>
+    <link href="http://y2bd.github.io/blog/2014/03/18/creating-a-parallax-scrolling-effect-on-windows-phone/"/>
+    
+    <updated>2014-03-18T14:19:00-07:00</updated>
+    <id>http://y2bd.github.io/blog/2014/03/18/creating-a-parallax-scrolling-effect-on-windows-phone</id>
+    
+    <content type="html"><![CDATA[<p><img class="left" src="http://y2bd.github.io/images/posts/parallax/appsocial.png" width="240" height="600" title="Here's a app list of mine." ></p>
+
+<p><em>tl;dr: <a href="https://github.com/y2bd/WPParallaxScrolling">Here&rsquo;s a commented sample project if you&rsquo;re in a hurry</a></em></p>
+
+<p>Windows Phone&rsquo;s scrollviews have a property where if you scroll past the content area, the content is squished.
+Nokia&rsquo;s <a href="http://www.nokia.com/us-en/apps/app-social/">App Social</a> has a cool but subtle effect that takes advantage of this.
+If you&rsquo;re looking at a recommendation list within the app and try pulling the list down, you&rsquo;ll notice that the header image doesn&rsquo;t scroll with the
+rest of the list. Instead, it scrolls slower than everything else, as well as expands to fill the space made by the squished scrollview.</p>
+
+<p>If you&rsquo;ve ever played with an iOS device, you should know this effect well, as it&rsquo;s present in so many apps on that platform. My favorite example is
+probably within <a href="http://dayoneapp.com/">Day One</a>, an awesome diary app, where within your diary entries you can set a header photo that behaves similarly.</p>
+
+<p>Creating this effect on Windows Phone is certainly tricky for a variety of reasons&mdash;in fact, if you play around with App Social&rsquo;s implementation,
+you might even catch a few glitches&mdash;but with a bit of work you can hack together something like this:</p>
+
+<p><img class="gfyitem" data-id="SimpleLiveAnnelid" data-controls="false" data-dot="false"/></p>
+
+<p>Let&rsquo;s get to work! Open up VS and create a new blank WP8 project. This might work in WP7 (or even WP8.1!) but I haven&rsquo;t tested it.</p>
+
+<!--more-->
+
+
+<p>Here&rsquo;s the XAML we&rsquo;re going to be using:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Grid</span> <span class="na">x:Name=</span><span class="s">&quot;LayoutRoot&quot;</span>
+</span><span class='line'>      <span class="na">Background=</span><span class="s">&quot;Transparent&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;Grid</span> <span class="na">x:Name=</span><span class="s">&quot;ImageContainer&quot;</span>
+</span><span class='line'>          <span class="na">VerticalAlignment=</span><span class="s">&quot;Top&quot;</span>
+</span><span class='line'>          <span class="na">CacheMode=</span><span class="s">&quot;BitmapCache&quot;</span>
+</span><span class='line'>          <span class="na">RenderTransformOrigin=</span><span class="s">&quot;0.5,0.5&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;Grid.RenderTransform&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;CompositeTransform</span> <span class="na">x:Name=</span><span class="s">&quot;ImageTransform&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/Grid.RenderTransform&gt;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nt">&lt;Image</span> <span class="na">Source=</span><span class="s">&quot;/Assets/chitanda.jpg&quot;</span>
+</span><span class='line'>               <span class="na">Stretch=</span><span class="s">&quot;None&quot;</span>
+</span><span class='line'>               <span class="na">HorizontalAlignment=</span><span class="s">&quot;Center&quot;</span>
+</span><span class='line'>               <span class="na">VerticalAlignment=</span><span class="s">&quot;Top&quot;</span>
+</span><span class='line'>               <span class="na">x:Name=</span><span class="s">&quot;Image&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/Grid&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;ScrollViewer</span> <span class="na">x:Name=</span><span class="s">&quot;Scroller&quot;</span>
+</span><span class='line'>                  <span class="na">ManipulationMode=</span><span class="s">&quot;Control&quot;</span>
+</span><span class='line'>                  <span class="na">Background=</span><span class="s">&quot;#33000000&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;Grid</span> <span class="na">x:Name=</span><span class="s">&quot;ScrollGrid&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;Grid.RowDefinitions&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;RowDefinition</span> <span class="na">Height=</span><span class="s">&quot;500&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;RowDefinition</span> <span class="na">Height=</span><span class="s">&quot;*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/Grid.RowDefinitions&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;StackPanel</span> <span class="na">x:Name=</span><span class="s">&quot;TitlePanel&quot;</span>
+</span><span class='line'>                        <span class="na">VerticalAlignment=</span><span class="s">&quot;Bottom&quot;</span>
+</span><span class='line'>                        <span class="na">Margin=</span><span class="s">&quot;0,0,0,24&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;TextBlock</span> <span class="na">Style=</span><span class="s">&quot;{StaticResource PhoneTextTitle1Style}&quot;</span>
+</span><span class='line'>                           <span class="na">Margin=</span><span class="s">&quot;24,0&quot;</span>
+</span><span class='line'>                           <span class="na">TextWrapping=</span><span class="s">&quot;Wrap&quot;</span>
+</span><span class='line'>                           <span class="na">Text=</span><span class="s">&quot;The Title&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;TextBlock</span> <span class="na">Style=</span><span class="s">&quot;{StaticResource PhoneTextTitle2Style}&quot;</span>
+</span><span class='line'>                           <span class="na">Margin=</span><span class="s">&quot;24,0&quot;</span>
+</span><span class='line'>                           <span class="na">TextWrapping=</span><span class="s">&quot;Wrap&quot;</span>
+</span><span class='line'>                           <span class="na">Text=</span><span class="s">&quot;(with snarky subtitle)&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/StackPanel&gt;</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nt">&lt;StackPanel</span> <span class="na">x:Name=</span><span class="s">&quot;ContentPanel&quot;</span>
+</span><span class='line'>                        <span class="na">Grid.Row=</span><span class="s">&quot;1&quot;</span>
+</span><span class='line'>                        <span class="na">Background=</span><span class="s">&quot;{StaticResource PhoneChromeBrush}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;TextBlock</span> <span class="na">HorizontalAlignment=</span><span class="s">&quot;Left&quot;</span>
+</span><span class='line'>                           <span class="na">TextWrapping=</span><span class="s">&quot;Wrap&quot;</span>
+</span><span class='line'>                           <span class="na">VerticalAlignment=</span><span class="s">&quot;Top&quot;</span>
+</span><span class='line'>                           <span class="na">Style=</span><span class="s">&quot;{StaticResource PhoneTextTitle3Style}&quot;</span>
+</span><span class='line'>                           <span class="na">Margin=</span><span class="s">&quot;24&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;Run</span> <span class="na">Text=</span><span class="s">&quot;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec erat massa. Phasellus accumsan ornare velit non vestibulum. Quisque nulla mi, condimentum sit amet sapien quis, blandit facilisis leo. Praesent pulvinar, justo at ornare aliquet, tellus massa varius metus, nec euismod dui metus a mauris. Sed eu erat et nulla varius pharetra. Suspendisse id mi nibh. Donec ac quam vel erat malesuada porttitor convallis condimentum ipsum. Donec risus lectus, auctor dictum mauris et, lacinia condimentum sem.&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;LineBreak</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;LineBreak</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                  <span class="nt">&lt;Run</span> <span class="na">Text=</span><span class="s">&quot;Donec gravida purus non gravida volutpat. Suspendisse id libero non nunc dignissim molestie. Phasellus lobortis sit amet libero non volutpat. Duis viverra, augue ac bibendum eleifend, leo metus tincidunt neque, in malesuada dolor leo ac eros. Ut eget justo faucibus, vulputate ante ac, varius urna. Etiam blandit turpis ac leo tristique scelerisque. Phasellus ac aliquam eros. Curabitur condimentum mi ligula, et porttitor leo consectetur sit amet. &quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;LineBreak</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;LineBreak</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                    <span class="nt">&lt;Run</span> <span class="na">Text=</span><span class="s">&quot; Sed pellentesque sapien a diam interdum, vitae sagittis velit varius. Curabitur vehicula in velit ac porttitor. Integer nec nunc tellus. Nullam pulvinar magna eu mollis dignissim. Sed mattis at erat id euismod. Vestibulum mattis nunc nec sapien ornare, sit amet tristique diam volutpat. Nulla ut venenatis erat. &quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/TextBlock&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/StackPanel&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/Grid&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/ScrollViewer&gt;</span>
+</span><span class='line'><span class="nt">&lt;/Grid&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Most of what&rsquo;s in here is pretty self-explanatory, save for a line or two. Don&rsquo;t worry, I&rsquo;ll go over those curious lines later.</p>
+
+<p>You&rsquo;ll also need a rather large header image, of course. If you can&rsquo;t decide on one to use, feel free to use the one I did.
+The position and size of the character&rsquo;s eyes actualy help in demonstrating this effect. No really, I&rsquo;m serious!</p>
+
+<p><a href="http://y2bd.github.io/images/posts/parallax/chitanda.jpg"><img src="http://y2bd.github.io/images/posts/parallax/chitanda.jpg" title="Eru Chitanda, from Hyouka" ></a></p>
+
+<p>Last, I&rsquo;d recommending dealing with the system tray in some manner, whether it&rsquo;d be making it transparent or hiding it altogether:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="c">&lt;!-- hide the system tray --&gt;</span>
+</span><span class='line'>shell:SystemTray.IsVisible=&quot;False&quot;
+</span><span class='line'>
+</span><span class='line'><span class="c">&lt;!-- or make it transparent --&gt;</span>
+</span><span class='line'>shell:SystemTray.IsVisible=&quot;True&quot;
+</span><span class='line'>shell:SystemTray.Opacity=&quot;0&quot;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s now jump into the code-behind of the page. First of all, you&rsquo;ll notice from the XAML that the image is top-aligned to the top of the page.
+This isn&rsquo;t what we want. Instead, we want the center of the image to be at center of the empty space. As far as I know, there isn&rsquo;t an easy
+way to do this within XAML (without clipping the image) so let&rsquo;s do it programmatically:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">public</span> <span class="k">partial</span> <span class="k">class</span> <span class="nc">MainPage</span> <span class="p">:</span> <span class="n">PhoneApplicationPage</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// this is the height of the empty space above the content</span>
+</span><span class='line'>  <span class="c1">// that we created in the XAML</span>
+</span><span class='line'>  <span class="k">private</span> <span class="k">const</span> <span class="kt">double</span> <span class="n">EmptySpace</span> <span class="p">=</span> <span class="m">500</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// this will represent the vertical position of the image</span>
+</span><span class='line'>  <span class="c1">// we&#39;re storing it in a variable because we&#39;ll need it later</span>
+</span><span class='line'>  <span class="k">private</span> <span class="kt">double</span> <span class="n">_startPosition</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">public</span> <span class="nf">MainPage</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">InitializeComponent</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// we&#39;re putting our code in a Loaded event handler</span>
+</span><span class='line'>    <span class="c1">// because we have to wait until the image control is loaded</span>
+</span><span class='line'>    <span class="c1">// before getting its height</span>
+</span><span class='line'>    <span class="n">Loaded</span> <span class="p">+=</span> <span class="n">OnLoaded</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">private</span> <span class="k">void</span> <span class="nf">OnLoaded</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Here&#39;s the magic </span>
+</span><span class='line'>    <span class="c1">// To get the image where we want, we will shift it up by its height</span>
+</span><span class='line'>    <span class="c1">// Then we&#39;ll shift it down by the height of the empty space</span>
+</span><span class='line'>    <span class="c1">// Last, we&#39;ll divide that by two so we&#39;ll be directly between the top </span>
+</span><span class='line'>    <span class="c1">// of the page and the bottom of the empty space</span>
+</span><span class='line'>    <span class="n">_startPosition</span> <span class="p">=</span> <span class="p">(-</span><span class="n">Image</span><span class="p">.</span><span class="n">ActualHeight</span> <span class="p">+</span> <span class="n">EmptySpace</span><span class="p">)</span> <span class="p">/</span> <span class="m">2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// set the TranslateY of the CompositeTransform we created in the XAML</span>
+</span><span class='line'>    <span class="c1">// to our calculated start position</span>
+</span><span class='line'>    <span class="n">ImageTransform</span><span class="p">.</span><span class="n">TranslateY</span> <span class="p">=</span> <span class="n">_startPosition</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perfect! Now Chitanda (or whatever you chose as your image) will be centered in the space rather than stuck to the top. This is very important
+because later on, we&rsquo;ll be pulling the image down, so we don&rsquo;t want it to end immediately at the top.</p>
+
+<p><img class="center" src="http://y2bd.github.io/images/posts/parallax/centering.png" title="Top-aligned versus centered" ></p>
+
+<p>Now let&rsquo;s get to the actual effect. Although it looks like one smooth effect, there&rsquo;s actually two distinct parts. We need the image to scroll
+slowly when being hidden by content (the first part of the video above), and we also need to the image to &ldquo;expand&rdquo; when the scrollview is squished
+(the second part of the video). The first part is easier, so let&rsquo;s do it first.</p>
+
+<p>We need a way of detecting when the the scrollview is scrolled, and by how much. It turns out that the little scrollbar you see on the right
+is a good way of checking this. Now normally the scrollbar is buried deep within the ScrollViewer control, so we need some way of fishing it out.
+We&rsquo;re going to use the <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.visualtreehelper%28v=vs.110%29.aspx">VisualTreeHelper</a> to do this:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">OnLoaded</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">_startPosition</span> <span class="p">=</span> <span class="p">(-</span><span class="n">Image</span><span class="p">.</span><span class="n">ActualHeight</span> <span class="p">+</span> <span class="n">EmptySpace</span><span class="p">)</span> <span class="p">/</span> <span class="m">2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ImageTransform</span><span class="p">.</span><span class="n">TranslateY</span> <span class="p">=</span> <span class="n">_startPosition</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// extract the vertical scrollbar from our ScrollViewer named &#39;Scroller&#39;</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">scrollbar</span> <span class="p">=</span>
+</span><span class='line'>    <span class="p">((</span><span class="n">FrameworkElement</span><span class="p">)</span> <span class="n">VisualTreeHelper</span><span class="p">.</span><span class="n">GetChild</span><span class="p">(</span><span class="n">Scroller</span><span class="p">,</span> <span class="m">0</span><span class="p">)).</span><span class="n">FindName</span><span class="p">(</span><span class="s">&quot;VerticalScrollBar&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ScrollBar</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">scrollbar</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// listen for scroll events</span>
+</span><span class='line'>    <span class="n">scrollbar</span><span class="p">.</span><span class="n">ValueChanged</span> <span class="p">+=</span> <span class="n">OnScrollbarValueChanged</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that we&rsquo;ve fetched the scrollbar, let&rsquo;s see how we use it:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">OnScrollbarValueChanged</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedPropertyChangedEventArgs</span><span class="p">&lt;</span><span class="kt">double</span><span class="p">&gt;</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// if we&#39;re in positive scrolling territory</span>
+</span><span class='line'>  <span class="c1">// where positive means down</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">NewValue</span> <span class="p">&gt;</span> <span class="m">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// we&#39;re going to scroll our Image along with the content</span>
+</span><span class='line'>    <span class="c1">// but only half as fast</span>
+</span><span class='line'>    <span class="c1">// try removing the /2.0 and see what happens</span>
+</span><span class='line'>    <span class="n">ImageTransform</span><span class="p">.</span><span class="n">TranslateY</span> <span class="p">=</span> <span class="n">_startPosition</span> <span class="p">-</span> <span class="n">e</span><span class="p">.</span><span class="n">NewValue</span><span class="p">/</span><span class="m">2.0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// instead of using the scrollbar&#39;s value, you can also use the VerticalOffset</span>
+</span><span class='line'>    <span class="c1">// of the ScrollViewer itself</span>
+</span><span class='line'>    <span class="c1">// try it, see which one works better for you performance-wise</span>
+</span><span class='line'>    <span class="c1">// ImageTransform.TranslateY = _startPosition - Scroller.VerticalOffset/2.0;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it! Now if you scroll the content to read more of it, you&rsquo;ll notice that instead of staying put,
+the header image now scrolls along, but slower than the content.</p>
+
+<p>We&rsquo;re not done yet though. If you try pulling down on the content, causing it to squish, you&rsquo;ll see that
+nothing happens to the header image. You might think that it&rsquo;s because of the <code>if (e.NewValue &gt; 0)</code> check
+we did. But if you remove it, you&rsquo;ll see that there&rsquo;s no difference.</p>
+
+<p>The problem is that the scrollbar&rsquo;s value (as well as a ScrollViewer&rsquo;s VerticalOffset) doesn&rsquo;t respond to the
+squishing effect. It doesn&rsquo;t become a negative value, which means that we can&rsquo;t use for the second part of the
+parallax effect. This is where things get complicated.</p>
+
+<p>The ScrollViewer control has a weird property called <code>Content</code>, which is a UIElement representing whatever you
+put inside of it. That UIElement, like all UIElements, has a RenderTransform property. It turns out that when
+you squish a ScrollViewer, it sets that RenderTransform to a new <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.compositetransform%28v=vs.95%29.aspx">CompositeTransform</a> instance. It only does <em>once a squish occurs</em>
+though. That means that if you tried accessing <code>Scroller.Content.RenderTransform</code> in our OnLoaded function, you wouldn&rsquo;t
+get a CompositeTransform object. You&rsquo;d instead get a MatrixTransform, and we can&rsquo;t do anything useful with that. We&rsquo;re
+going to need to detect when it becomes a CompositeTransform, and the MouseMove event is perfect for that:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">OnLoaded</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">RoutedEventArgs</span> <span class="n">e</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">_startPosition</span> <span class="p">=</span> <span class="p">(-</span><span class="n">Image</span><span class="p">.</span><span class="n">ActualHeight</span> <span class="p">+</span> <span class="n">EmptySpace</span><span class="p">)</span> <span class="p">/</span> <span class="m">2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ImageTransform</span><span class="p">.</span><span class="n">TranslateY</span> <span class="p">=</span> <span class="n">_startPosition</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">scrollbar</span> <span class="p">=</span>
+</span><span class='line'>    <span class="p">((</span><span class="n">FrameworkElement</span><span class="p">)</span> <span class="n">VisualTreeHelper</span><span class="p">.</span><span class="n">GetChild</span><span class="p">(</span><span class="n">Scroller</span><span class="p">,</span> <span class="m">0</span><span class="p">)).</span><span class="n">FindName</span><span class="p">(</span><span class="s">&quot;VerticalScrollBar&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ScrollBar</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">scrollbar</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">scrollbar</span><span class="p">.</span><span class="n">ValueChanged</span> <span class="p">+=</span> <span class="n">OnScrollbarValueChanged</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// when the mouse (the user tapping his screen) moves</span>
+</span><span class='line'>  <span class="c1">// within the ScrollViewer, there&#39;s a chance that</span>
+</span><span class='line'>  <span class="c1">// the ScrollViewer&#39;s Content&#39;s RenderTransform will be set to</span>
+</span><span class='line'>  <span class="c1">// a new CompositeTransform that we need to grab a hold of</span>
+</span><span class='line'>  <span class="n">Scroller</span><span class="p">.</span><span class="n">MouseMove</span> <span class="p">+=</span> <span class="n">ScrollerOnMouseMove</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">ScrollerOnMouseMove</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">MouseEventArgs</span> <span class="n">mouseEventArgs</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// grab the content element</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">uiElement</span> <span class="p">=</span> <span class="n">Scroller</span><span class="p">.</span><span class="n">Content</span> <span class="k">as</span> <span class="n">UIElement</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">uiElement</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// try to grab its transform as a CompositeTransform</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">transform</span> <span class="p">=</span> <span class="n">uiElement</span><span class="p">.</span><span class="n">RenderTransform</span> <span class="k">as</span> <span class="n">CompositeTransform</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// if it&#39;s actually a CompositeTransform</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">transform</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// we&#39;re good, let&#39;s go to town!</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Awesome, we got our hook! Now, we can use the TranslateY of the CompositeTransform and move our header image
+just like we did with the scrollbar. There&rsquo;s a slight problem though.</p>
+
+<p>This method, ScrollerOnMouseMove, will only be called when the &ldquo;mouse&rdquo; is moving within the ScrollViewer. There&rsquo;s one
+case that it doesn&rsquo;t handle: when the user squishes the content and then lets go, letting the content spring back
+into place. ScrollerOnMouseMove won&rsquo;t be called then, so our image will never slide back into place.</p>
+
+<p>We could use the MouseUp event for this to snap the image back into place, but that&rsquo;ll be a harsh snapping
+instead of the smooth sliding that we want.</p>
+
+<p>Instead, we&rsquo;ll recall that the TranslateY property of a CompositeTransform is actually a dependency property, which
+means that it can be binded to:</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class='csharp'><span class='line'><span class="c1">// this will be our backing property for the binding</span>
+</span><span class='line'><span class="k">private</span> <span class="kt">double</span> <span class="n">_verticalOffset</span><span class="p">;</span>
+</span><span class='line'><span class="k">public</span> <span class="kt">double</span> <span class="n">VerticalOffset</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_verticalOffset</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">set</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">_verticalOffset</span> <span class="p">=</span> <span class="k">value</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">onVerticalOffsetChanged</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">onVerticalOffsetChanged</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// now let&#39;s do the same thing we did with the scrollbar</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// we only want to handle the squishes here, as the </span>
+</span><span class='line'>  <span class="c1">// scrollbar events handle the normal scrolling</span>
+</span><span class='line'>  <span class="c1">// so we&#39;ll only respond to the squishes, when the content</span>
+</span><span class='line'>  <span class="c1">// is being moved down</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">VerticalOffset</span> <span class="p">&gt;=</span> <span class="m">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">ImageTransform</span><span class="p">.</span><span class="n">TranslateY</span> <span class="p">=</span> <span class="n">_startPosition</span> <span class="p">+</span> <span class="n">VerticalOffset</span><span class="p">/</span><span class="m">2.0</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span> <span class="k">void</span> <span class="nf">ScrollerOnMouseMove</span><span class="p">(</span><span class="kt">object</span> <span class="n">sender</span><span class="p">,</span> <span class="n">MouseEventArgs</span> <span class="n">mouseEventArgs</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// grab the content element</span>
+</span><span class='line'>  <span class="kt">var</span> <span class="n">uiElement</span> <span class="p">=</span> <span class="n">Scroller</span><span class="p">.</span><span class="n">Content</span> <span class="k">as</span> <span class="n">UIElement</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">uiElement</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// try to grab its transform as a CompositeTransform</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">transform</span> <span class="p">=</span> <span class="n">uiElement</span><span class="p">.</span><span class="n">RenderTransform</span> <span class="k">as</span> <span class="n">CompositeTransform</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// if it&#39;s actually a CompositeTransform</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">transform</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// we&#39;re good, let&#39;s go to town!</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// let&#39;s set up the binding in a standard manner</span>
+</span><span class='line'>      <span class="kt">var</span> <span class="n">binding</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Binding</span><span class="p">(</span><span class="s">&quot;VerticalOffset&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// in a perfect world, we use a reverse OneWay binding, where</span>
+</span><span class='line'>      <span class="c1">// the DP we&#39;re binding to can set the backing property</span>
+</span><span class='line'>      <span class="c1">// as this doesn&#39;t exist in the world of Windows Phone</span>
+</span><span class='line'>      <span class="c1">// we&#39;re going to cheat and use TwoWay</span>
+</span><span class='line'>      <span class="n">binding</span><span class="p">.</span><span class="n">Mode</span> <span class="p">=</span> <span class="n">BindingMode</span><span class="p">.</span><span class="n">TwoWay</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">binding</span><span class="p">.</span><span class="n">Source</span> <span class="p">=</span> <span class="k">this</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">BindingOperations</span><span class="p">.</span><span class="n">SetBinding</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">CompositeTransform</span><span class="p">.</span><span class="n">TranslateYProperty</span><span class="p">,</span> <span class="n">binding</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// we&#39;re going to release the event handler</span>
+</span><span class='line'>      <span class="c1">// since we only need to bind once</span>
+</span><span class='line'>      <span class="n">Scroller</span><span class="p">.</span><span class="n">MouseMove</span> <span class="p">-=</span> <span class="n">ScrollerOnMouseMove</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now we&rsquo;re done! For real this time! If you pull down on the content, squishing it, you&rsquo;ll see your header image
+slowly slide down to fill the space. And if you release, the image will slide up with the content.</p>
+
+<p>All is not perfect in the land of Windows Phone though.</p>
+
+<p>I mentioned way back in the beginning that there was a peculiar line in our XAML that I&rsquo;d discuss later. That
+line is <code>ManipulationMode="Control"</code>. See, by default the ManipulationMode of a ScrollViewer is set to &ldquo;System&rdquo;.
+What this amounts to is that scrolling events are optimized and reports are chunked to get the smooth scrolling
+Windows Phone is known for. Setting it to &ldquo;Control&rdquo; throws some of these optimizations out of the window, but it&rsquo;s
+the only way we can get accurate values for the scroll offsets. If you try setting it back to &ldquo;System&rdquo;, you&rsquo;ll see
+that our smooth parallax scrolling becomes chunky, and in the case of handling squishes fails completely.</p>
+
+<p>You&rsquo;ll have to settle for the (albeit slight) performance decrease if you want this effect&mdash;you&rsquo;ve probably already
+noticed that sometimes the header image stutters. You&rsquo;ll also have to settle for some
+sporadic bugs that I&rsquo;ve noticed, including the ScrollViewer getting &ldquo;stuck&rdquo; in the squished state,
+or it jumping to the top or the bottom if you flick randomly.</p>
+
+<p>If you&rsquo;re okay with it though (or you find some way to further optimize this, please tell me if you do!), this is a
+really nice looking effect, and it honestly isn&rsquo;t a ton of trouble to implement.</p>
+
+<p>If you don&rsquo;t feel like copy-pasting all of this code and organizing it yourself, you can download a fully-commented example here: <a href="https://github.com/y2bd/WPParallaxScrolling">https://github.com/y2bd/WPParallaxScrolling</a></p>
+
+<p>Here are two articles I used when figuring this out:</p>
+
+<ul>
+<li><a href="http://blogs.msdn.com/b/jasongin/archive/2011/04/13/pull-down-to-refresh-a-wp7-listbox-or-scrollviewer.aspx">Pull-down-to-refresh a WP7 ListBox or ScrollViewer</a></li>
+<li><a href="http://developer.nokia.com/community/wiki/How_to_keep_a_UI_element_in_view_when_scrolling_a_page_in_Windows_Phone">How to keep a UI element in view when scrolling a page in Windows Phone</a></li>
+</ul>
+
+]]></content>
+    
+  </entry>
   
   <entry>
     
